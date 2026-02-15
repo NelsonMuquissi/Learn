@@ -915,7 +915,7 @@ body {
               disabled={loading}
             />
             <label htmlFor="acceptTerms">
-              Concordo com os <a href="#" target="_blank">Termos de Uso</a> e <a href="#" target="_blank">Política de Privacidade</a> *
+              Concordo com os <button type="button">Termos de Uso</button> e <button type="button">Política de Privacidade</button> *
             </label>
           </div>
           {errors.acceptTerms && (
