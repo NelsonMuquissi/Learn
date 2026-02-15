@@ -925,7 +925,7 @@ body {
             </div>
           )}
 
-          <div className="action-buttons">
+          {/* <div className="action-buttons">
             <button 
               type="button" 
               className="test-data-button"
@@ -935,7 +935,7 @@ body {
               Preencher com dados de teste
             </button>
      
-          </div>
+          </div> */}
 
           <button 
             className="signup-button" 

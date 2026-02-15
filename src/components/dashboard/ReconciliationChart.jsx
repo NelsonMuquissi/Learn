@@ -157,19 +157,37 @@ const processReconciliation = async () => {
       }
     );
     console.log("Status:", response.status);
+
     try {
       const data = await response.json();
       console.log("Resposta da API:", data);
+
+      console.log("jobId Recebido com sucesso",data.jobId)
+       const response = await fetch( `https://kutexa-api.onrender.com/api/v1/reconciliation-jobs/${data.jobId}`,{
+        method: "GET",
+        headers:{Authorization: `Bearer ${token}`},
+       
+       })
+
+       const dataJobId =  await response.json();
+
+       console.log("Job id Dagta  response  APi",dataJobId);
+
+
     } catch {
       console.log("Resposta não retornou JSON");
     }
 
     if (response.ok) {
       showNotification("✅ Reconciliação concluída com sucesso!", "success");
+
+
       removeBankStatement();
       setInvoiceFiles([]);
     } else {
-      showNotification("Erro ao processar reconciliação", "error");
+
+      console.log(response.data);
+      showNotification( response.data?.title ||" Erro ao processar reconciliação","error");
     }
   } catch (err) {
     console.error(err);
@@ -191,7 +209,6 @@ const processReconciliation = async () => {
         <h1>Processo de Reconciliação</h1>
         <p>Envie o extrato bancário e as faturas para reconciliação automática</p>
       </div>
- 
         <div className="reconcilia-filters-container">
       <div className="reconcilia-field">
         <label htmlFor="company-select" className="reconcilia-label">Empresa:</label>

@@ -53,8 +53,8 @@ function Sidebar({ isOpen}) {
       text: 'Reconciliamento',
       hasSubmenu: true,
       submenu: [
-        { text: 'Reconciliamento em Tempo Real', onClick: () => window.location.href = '/reconciliamento' },
-        { text: 'Reconciliamento com ERP', onClick: () => window.location.href = '/reconciliamento-erp' }
+        { text: 'Processo de Reconciliação', onClick: () => window.location.href = '/reconciliation' },
+       
       ]
     },
     // {
