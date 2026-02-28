@@ -1,12 +1,13 @@
-
-import { useEffect, useState, } from "react";
-import "../../styles/reconciliation.css";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ListarEmpresas() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
+  const navigate = useNavigate()  
   useEffect(() => {
     const fetchCompanies = async () => {
       const token = localStorage.getItem("token");
@@ -21,29 +22,19 @@ export default function ListarEmpresas() {
         const response = await fetch(
           "https://kutexa-api.onrender.com/api/v1/companies/",
           {
-            method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
             },
-            credentials: "include"
           }
         );
 
-        if (response.status === 401) {
-          setError("Token inválido ou expirado. Faça login novamente.");
-          setLoading(false);
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Erro ao buscar empresas");
-        }
+        if (!response.ok) throw new Error();
 
         const data = await response.json();
         setCompanies(data);
-      } catch (err) {
-        setError("Erro de conexão com o servidor");
+      } catch {
+        setError("Erro ao buscar empresas");
       } finally {
         setLoading(false);
       }
@@ -52,63 +43,75 @@ export default function ListarEmpresas() {
     fetchCompanies();
   }, []);
 
-  if (loading) {
-    return <p style={{ padding: 20 }}>🔄 Carregando empresas...</p>;
-  }
+  if (loading)
+    return (
+      <div className="container mt-3">
+        <div className="alert alert-info py-2">
+          🔄 Carregando...
+        </div>
+      </div>
+    );
 
-  if (error) {
-    return <p style={{ padding: 20, color: "red" }}>{error}</p>;
-  }
+  if (error)
+    return (
+      <div className="container mt-3">
+        <div className="alert alert-danger py-2">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="reconciliation-container-empresa">
-      <div className="page-header-empresa">
-        <h1>Empresas Cadastradas</h1>
-        <p>Lista de empresas registadas no sistema</p>
+    <div className="container mt-3">
+
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="mb-0">Empresas</h5>
       </div>
 
-      <div className="register-card-empresa">
-        {companies.length === 0 ? (
-          <p>Nenhuma empresa encontrada.</p>
-        ) : (
-          <table className="empresa-table" style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={th}>Nome</th>
-                <th style={th}>NIF</th>
-                <th style={th}>Moeda</th>
-                <th style={th}>Criado em</th>
-              </tr>
-            </thead>
-            <tbody>
-              {companies.map((company) => (
-                <tr key={company.id}>
-                  <td style={td}>{company.name}</td>
-                  <td style={td}>{company.nif}</td>
-                  <td style={td}>{company.defaultCurrency}</td>
-                  <td style={td}>
-                    {company.createdAt
-                      ? new Date(company.createdAt).toLocaleDateString()
-                      : "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="card shadow-sm">
+        <div className="card-body p-3">
+
+          {companies.length === 0 ? (
+            <p className="text-muted mb-0">Nenhuma empresa encontrada.</p>
+          ) : (
+            <div className="table-responsive">
+              <table className="table table-sm table-hover align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th>Nome</th>
+                    <th>NIF</th>
+                    <th>Data</th>
+                    <th className="text-end">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="text-white">
+                  {companies.map((company) => (
+                    <tr key={company.id}>
+                      <td>{company.name}</td>
+                      <td>{company.nif}</td>
+                      <td>
+                        {company.createdAt
+                          ? new Date(company.createdAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td className="text-end">
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() => navigate(`/${company.id}/cadastrarUSuarioEmpresa`)
+                          }
+                        >
+
+                          
+                          + Usuário
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   );
 }
-
-/* estilos simples inline (podes mover para CSS) */
-const th = {
-  padding: "12px",
-  borderBottom: "1px solid #ccc",
-  textAlign: "left"
-};
-
-const td = {
-  padding: "10px",
-  borderBottom: "1px solid #eee"
-};

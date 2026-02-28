@@ -44,7 +44,7 @@ function Sidebar({ isOpen}) {
       hasSubmenu: true,
       submenu: [
         { text: 'Cadastrar Empresa', onClick: () => window.location.href = '/cadastroempresas' },
-        { text: 'Ver Empresas', onClick: () => window.location.href = '/listarEmpresas' }
+         { text: 'Ver Empresas', onClick: () => window.location.href = '/listarEmpresas' }
       ]
     },
     {

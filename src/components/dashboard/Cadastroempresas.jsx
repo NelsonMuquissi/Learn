@@ -8,7 +8,7 @@ export default function Cadastroempresas() {
     defaultCurrency: "AOA"
   });
 
-    const [processing, setProcessing] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleCompanyChange = (e) => {

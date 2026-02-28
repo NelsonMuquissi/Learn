@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { AlertProvider } from "./contexts/AlertContext";
+import CadastrarUsuarioEmpresa from './pages/cadastrarUsuarioEmpresa';
 import CadastroempresasPage from "./pages/CadastroempresasPage";
 import DashboardPage from "./pages/DashboardPage";
 import LandingPage from "./pages/LandingPage";
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard" element={< DashboardPage/>} />
         <Route path="/reconciliation" element={< ReconciliationPage/>} />
         <Route path="/cadastroempresas" element={<CadastroempresasPage/>}/>
+        <Route path="/:id/cadastrarUSuarioEmpresa" element={<CadastrarUsuarioEmpresa/>}/>
         <Route path="/listarEmpresas" element={<ListarEmpresasPage/>}/>
       </Routes>
     </BrowserRouter>
