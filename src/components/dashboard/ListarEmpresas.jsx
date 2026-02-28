@@ -78,7 +78,7 @@ export default function ListarEmpresas() {
                   <tr>
                     <th>Nome</th>
                     <th>NIF</th>
-                    <th>Data</th>
+                  
                     <th className="text-end">Ações</th>
                   </tr>
                 </thead>
@@ -87,11 +87,7 @@ export default function ListarEmpresas() {
                     <tr key={company.id}>
                       <td>{company.name}</td>
                       <td>{company.nif}</td>
-                      <td>
-                        {company.createdAt
-                          ? new Date(company.createdAt).toLocaleDateString()
-                          : "-"}
-                      </td>
+                     
                       <td className="text-end">
                         <button
                           className="btn btn-sm btn-primary"
@@ -100,7 +96,7 @@ export default function ListarEmpresas() {
                         >
 
                           
-                          + Usuário
+                          Gerir
                         </button>
                       </td>
                     </tr>
