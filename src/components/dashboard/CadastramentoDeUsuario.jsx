@@ -52,10 +52,12 @@ export default function DashboardUsuariosBootstrap() {
       );
       if (response.status === 200) {
         const data = await response.json();
-        setUsuarios(data);
+        // Garantir que é um array
+        setUsuarios(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error(error);
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -64,18 +66,22 @@ export default function DashboardUsuariosBootstrap() {
   const fetchReconciliacoes = async () => {
     setLoadingReconciliacao(true);
     const token = localStorage.getItem("token");
-    if (!token || !companyId) return;
+    if (!token) {
+      showNotification("Token não encontrado", "danger");
+      setLoadingReconciliacao(false);
+      return;
+    }
+    if (!companyId) return;
 
     try {
-      const queryParams = new URLSearchParams({
-        ...(filtros.status && { status: filtros.status }),
-        sort: filtros.sort,
-        page: filtros.page,
-        pageSize: filtros.pageSize
-      });
+      const params = new URLSearchParams();
+      if (filtros.status) params.append('status', filtros.status);
+      params.append('sort', filtros.sort);
+      params.append('page', filtros.page);
+      params.append('pageSize', filtros.pageSize);
 
       const response = await fetch(
-        `https://kutexa-api.onrender.com/api/v1/companies/${companyId}/reconciliations?${queryParams}`,
+        `https://kutexa-api.onrender.com/api/v1/companies/${companyId}/reconciliation-jobs?${params.toString()}`,
         {
           method: "GET",
           headers: {
@@ -87,10 +93,38 @@ export default function DashboardUsuariosBootstrap() {
 
       if (response.status === 200) {
         const data = await response.json();
-        setReconciliacoes(data);
+        console.log('Dados recebidos da API:', data);
+        
+        // VERIFICAÇÃO CRÍTICA: Garantir que reconciliacoes é um array
+        if (Array.isArray(data)) {
+          setReconciliacoes(data);
+        } else if (data && typeof data === 'object') {
+          // Se for um objeto, verificar se tem uma propriedade que é array
+          if (Array.isArray(data.data)) {
+            setReconciliacoes(data.data);
+          } else if (Array.isArray(data.items)) {
+            setReconciliacoes(data.items);
+          } else if (Array.isArray(data.results)) {
+            setReconciliacoes(data.results);
+          } else {
+            // Se não encontrar array, colocar objeto vazio em array ou array vazio
+            console.warn('Formato de dados não reconhecido:', data);
+            setReconciliacoes([]);
+          }
+        } else {
+          setReconciliacoes([]);
+        }
+      } else if (response.status === 401) {
+        showNotification("Token inválido ou expirado", "danger");
+        setReconciliacoes([]);
+      } else {
+        console.log('Erro na resposta:', response.status);
+        setReconciliacoes([]);
       }
     } catch (error) {
       console.error("Erro ao buscar reconciliações:", error);
+      showNotification("Falha ao carregar histórico de reconciliações.", "danger");
+      setReconciliacoes([]);
     } finally {
       setLoadingReconciliacao(false);
     }
@@ -168,12 +202,23 @@ export default function DashboardUsuariosBootstrap() {
   };
 
   useEffect(() => {
-    fetchUsuarios();
-    fetchReconciliacoes();
-  }, [companyId, filtros]);
+    if (companyId) {
+      fetchUsuarios();
+      fetchReconciliacoes();
+    }
+  }, [companyId, filtros.status, filtros.page]);
 
-  const totalUsuarios = usuarios.length;
-  const reconciliacoesPendentes = reconciliacoes.filter(r => r.status === 'pending' || r.status === 'processing').length;
+  // CORREÇÃO: Verificação segura antes de fazer filter
+  const totalUsuarios = Array.isArray(usuarios) ? usuarios.length : 0;
+  
+  // CORREÇÃO: Verificação segura para reconciliacoes
+  const reconciliacoesPendentes = Array.isArray(reconciliacoes) 
+    ? reconciliacoes.filter(r => r?.status === 'pending' || r?.status === 'processing').length 
+    : 0;
+
+  // Para debug - remover depois
+  console.log('reconciliacoes é array?', Array.isArray(reconciliacoes));
+  console.log('valor de reconciliacoes:', reconciliacoes);
 
   return (
     <div className="min-vh-100" style={{ backgroundColor: '#f8fafc' }}>
@@ -201,7 +246,7 @@ export default function DashboardUsuariosBootstrap() {
       </div>
 
       <div className="container-fluid py-4">
-        {/* Cards superiores - mais compactos */}
+        {/* Cards superiores */}
         <div className="row g-3 mb-4">
           <div className="col-md-6">
             <div className="bg-white p-3 rounded-4 border" style={{ borderColor: '#f1f3f5' }}>
@@ -210,10 +255,10 @@ export default function DashboardUsuariosBootstrap() {
                   <i className="bi bi-file-text fs-5 text-primary"></i>
                 </div>
                 <div>
-                  <span className="text-muted small text-uppercase tracking-wide">Documentos</span>
+                  <span className="text-muted small text-uppercase tracking-wide">Documentos Pendentes</span>
                   <div className="d-flex align-items-baseline gap-2">
                     <span className="h4 fw-semibold mb-0 text-dark">{reconciliacoesPendentes || 247}</span>
-                    <span className="badge bg-success bg-opacity-10 text-success small fw-normal px-2 text-white">
+                    <span className="badge bg-success bg-opacity-10 text-success small fw-normal px-2">
                       +12
                     </span>
                   </div>
@@ -228,11 +273,11 @@ export default function DashboardUsuariosBootstrap() {
                   <i className="bi bi-people fs-5 text-success"></i>
                 </div>
                 <div>
-                  <span className="text-muted small text-uppercase tracking-wide">Usuários</span>
+                  <span className="text-muted small text-uppercase tracking-wide">Usuários Ativos</span>
                   <div className="d-flex align-items-baseline gap-2">
                     <span className="h4 fw-semibold mb-0 text-dark">{totalUsuarios || 156}</span>
-                    <span className="badge bg-secondary bg-opacity-10 text-secondary small fw-normal px-2 text-white">
-                      ativos
+                    <span className="badge bg-secondary bg-opacity-10 text-secondary small fw-normal px-2">
+                      cadastrados
                     </span>
                   </div>
                 </div>
@@ -267,12 +312,12 @@ export default function DashboardUsuariosBootstrap() {
                     style={{ fontSize: '0.9rem' }}
                   />
                   <select
-                    className="form-select form-select-sm border-0 bg-light text-white"
+                    className="form-select form-select-sm border-0 bg-light"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                     style={{ width: '120px', fontSize: '0.9rem' }}
                   >
-                    <option value="admin" className="text-white">Admin</option>
+                    <option value="admin">Admin</option>
                     <option value="user">User</option>
                   </select>
                   <button type="submit" className="btn btn-sm btn-primary px-3">
@@ -337,7 +382,7 @@ export default function DashboardUsuariosBootstrap() {
                         className="form-control form-control-sm border-0 bg-light"
                         value={dadosBancarios.bankName}
                         onChange={(e) => setDadosBancarios({...dadosBancarios, bankName: e.target.value})}
-                        placeholder="Banco"
+                        placeholder="Nome do Banco"
                         required
                       />
                     </div>
@@ -397,7 +442,7 @@ export default function DashboardUsuariosBootstrap() {
                 <select
                   className="form-select form-select-sm border-0 bg-light"
                   value={filtros.status}
-                  onChange={(e) => setFiltros({...filtros, status: e.target.value})}
+                  onChange={(e) => setFiltros({...filtros, status: e.target.value, page: 1})}
                   style={{ width: '150px', fontSize: '0.85rem' }}
                 >
                   <option value="">Todos</option>
@@ -415,7 +460,7 @@ export default function DashboardUsuariosBootstrap() {
                       <span className="visually-hidden">Carregando...</span>
                     </div>
                   </div>
-                ) : reconciliacoes.length === 0 ? (
+                ) : !Array.isArray(reconciliacoes) || reconciliacoes.length === 0 ? (
                   <div className="text-center py-4">
                     <i className="bi bi-clock-history fs-5 text-muted"></i>
                     <p className="text-muted small mt-2 mb-0">Nenhum registro</p>
@@ -435,16 +480,26 @@ export default function DashboardUsuariosBootstrap() {
                         {reconciliacoes.map((rec, index) => (
                           <tr key={index} className="border-0">
                             <td className="border-0">
-                              <code className="small text-secondary">{rec.id?.substring(0, 6)}</code>
+                              <code className="small text-secondary">{rec?.id?.substring(0, 8) || '---'}</code>
                             </td>
                             <td className="border-0">
                               <span className="small text-dark">
-                                {new Date(rec.createdAt).toLocaleDateString('pt-PT')}
+                                {rec?.createdAt ? new Date(rec.createdAt).toLocaleDateString('pt-PT') : '-'}
                               </span>
                             </td>
                             <td className="border-0">
-                              <span className={`badge bg-${rec.status === 'completed' ? 'success' : rec.status === 'processing' ? 'info' : rec.status === 'pending' ? 'warning' : 'danger'} bg-opacity-10 text-${rec.status === 'completed' ? 'success' : rec.status === 'processing' ? 'info' : rec.status === 'pending' ? 'warning' : 'danger'} px-2 py-1 fw-normal small`}>
-                                {rec.status}
+                              <span className={`badge bg-${
+                                rec?.status === 'completed' ? 'success' : 
+                                rec?.status === 'processing' ? 'info' : 
+                                rec?.status === 'pending' ? 'warning' : 
+                                rec?.status === 'failed' ? 'danger' : 'secondary'
+                              } bg-opacity-10 text-${
+                                rec?.status === 'completed' ? 'success' : 
+                                rec?.status === 'processing' ? 'info' : 
+                                rec?.status === 'pending' ? 'warning' : 
+                                rec?.status === 'failed' ? 'danger' : 'secondary'
+                              } px-2 py-1 fw-normal small`}>
+                                {rec?.status || 'unknown'}
                               </span>
                             </td>
                             <td className="border-0 text-end">
@@ -463,8 +518,7 @@ export default function DashboardUsuariosBootstrap() {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
+      <style>{`
         .tracking-wide {
           letter-spacing: 0.025em;
         }
