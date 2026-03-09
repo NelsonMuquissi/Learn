@@ -1,9 +1,11 @@
 :root {
     --primary: #14532D;
     --accent: #C8A951;
-    --light: #F4F1EC;
-    --white: #FFFFFF;
-    --dark-bg: #0A2918;
+    --light: #1A1A2E;
+    --white: #F0F0FF;
+    --dark-bg: #0A0A0F;
+    --card-bg: rgba(20, 83, 45, 0.1);
+    --border-color: rgba(200, 169, 81, 0.3);
 }
 
 * {
@@ -14,12 +16,13 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--white);
-    color: #333;
+    background-color: var(--dark-bg);
+    color: var(--white);
 }
 
 .reconciliation-container {
     padding: 2rem;
+    color: var(--white);
 }
 
 .page-header {
@@ -27,13 +30,16 @@ body {
 }
 
 .page-header h1 {
-    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     font-size: 2rem;
     margin-bottom: 0.5rem;
 }
 
 .page-header p {
-    color: #666;
+    color: var(--accent);
     font-size: 1.1rem;
 }
 
@@ -45,17 +51,19 @@ body {
 }
 
 .upload-card {
-    background: var(--white);
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--light);
+    box-shadow: 0 0 30px rgba(200, 169, 81, 0.1);
+    border: 1px solid var(--border-color);
     transition: all 0.3s ease;
 }
 
 .upload-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 40px rgba(200, 169, 81, 0.3);
+    border-color: var(--accent);
 }
 
 .upload-header {
@@ -68,29 +76,36 @@ body {
 .upload-icon {
     width: 50px;
     height: 50px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--dark-bg) 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #1a6d3b 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--white);
     font-size: 1.5rem;
+    box-shadow: 0 0 20px rgba(20, 83, 45, 0.5);
 }
 
 .upload-header h3 {
-    color: var(--primary);
+    background: linear-gradient(45deg, var(--white), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     font-size: 1.3rem;
 }
+
 .reconcilia-filters-container {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   align-items: flex-end;
   padding: 16px;
-  background: #111827;
+  background: rgba(20, 83, 45, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(200, 169, 81, 0.1);
   margin-bottom: 20px;
+  backdrop-filter: blur(20px);
 }
 
 .reconcilia-field {

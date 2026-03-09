@@ -3,15 +3,15 @@ import Header from '../components/dashboard/Header';
 import Sidebar from '../components/dashboard/Sidebar';
 import '../styles/dashboard.css';
 
-export default function DashboardLayout({ children,  onLogout }) {
+export default function DashboardLayout({ children, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userName, setUserName] = useState('Usuário');
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const handleLogout = () => { if (window.confirm('Tem certeza que deseja sair?')) onLogout(); };
 
-  
- 
+
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user?.name) setUserName(user.name);
@@ -20,14 +20,14 @@ export default function DashboardLayout({ children,  onLogout }) {
 
   return (
     <div className="dashboard-container">
-       {sidebarOpen && <div className="menu-overlay active" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && <div className="menu-overlay active" onClick={() => setSidebarOpen(false)} />}
       <Sidebar isOpen={sidebarOpen} onLogout={handleLogout} />
 
-       <div className="main-content">
-        <Header userName={userName} onMenuClick={toggleSidebar} />
+      <div className="main-content">
+        <Header onMenuClick={toggleSidebar} />
 
         <main className="content">
-           {children}
+          {children}
         </main>
       </div>
     </div>
