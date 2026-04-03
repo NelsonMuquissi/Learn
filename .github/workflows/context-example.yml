@@ -1,0 +1,13 @@
+name: context Example
+
+on: [push]
+
+jobs:
+  show-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar Informações
+        run: |
+          echo "Repositorio: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Runner OS: ${{ runner.os }}"
