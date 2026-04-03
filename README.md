@@ -5,3 +5,14 @@
 @Now i am testing the rebase mode
 
 #Lets GO Boy
+<<<<<<< HEAD
+=======
+
+
+
+Nice
+
+Thank you God
+
+I am testing de hooks commit message
+>>>>>>> test
