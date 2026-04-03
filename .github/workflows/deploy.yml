@@ -1,0 +1,31 @@
+name: Deploy Application
+
+on:
+  push:
+    branches: [ main ]   # dispara quando há push na branch main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: production
+      DEPLOY_DIR: /var/www/app   # variável de ambiente para o diretório de deploy
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Conectar ao servidor e fazer deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no user@${{ secrets.SERVER_IP }} \
+          "cd $DEPLOY_DIR && git pull origin main && ./restart.sh"
+
+      - name: Notificação de sucesso
+        run: echo "Deploy concluído em ambiente ${{ env.APP_ENV }}"
+
